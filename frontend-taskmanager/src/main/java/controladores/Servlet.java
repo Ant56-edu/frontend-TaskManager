@@ -1,0 +1,41 @@
+package controladores;
+
+import java.io.IOException;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import utilidades.HttpUtils;
+
+@WebServlet("/Servlet")
+public class Servlet extends HttpServlet {
+
+    private static final String BASE_API = "https://localhost:8082/api/";
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String data = req.getReader().lines().reduce("", String::concat);
+
+        JsonObject json = JsonParser.parseString(data).getAsJsonObject();
+
+        String metodo = json.get("metodo").getAsString();
+        String endpoint = json.get("endpoint").getAsString();
+        String body = json.get("body").isJsonNull() ? null : json.get("body").getAsString();
+
+        try {
+            String respuesta = HttpUtils.sendBody(
+                    BASE_API + endpoint,
+                    metodo,
+                    body);
+
+            resp.getWriter().write(respuesta);
+
+        } catch (Exception e) {
+            resp.getWriter().write("Error llamando al API: " + e.getMessage());
+        }
+    }
+}
