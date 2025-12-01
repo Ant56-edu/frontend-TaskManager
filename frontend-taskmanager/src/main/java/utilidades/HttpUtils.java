@@ -52,6 +52,8 @@ public class HttpUtils {
 
     public static String sendBody(String url, String body, String metodo) throws Exception {
 
+        // Maneja el envio de respuestas HTTP según el tipo de petición y el endpoint
+        // indicado.
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .timeout(Duration.ofSeconds(15));
@@ -61,7 +63,6 @@ public class HttpUtils {
         switch (metodo) {
             case "GET" -> builder.GET();
             case "POST" -> {
-                // Ensure we don't send null body
                 String finalBody = (body == null) ? "" : body;
                 builder.header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(finalBody));

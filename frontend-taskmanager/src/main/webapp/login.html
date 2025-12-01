@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>TaskManager - Inicio de sesión</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -55,5 +55,24 @@
         </form>
       </div>
     </div>
+    <script>
+      async function login() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const response = await fetch("/Servlet", {
+          method: "POST",
+          endpoint: "/auth/login",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        sessionStorage.setItem("token", data.token);
+
+        console.log("TOKEN:", data.token);
+      }
+    </script>
   </body>
 </html>

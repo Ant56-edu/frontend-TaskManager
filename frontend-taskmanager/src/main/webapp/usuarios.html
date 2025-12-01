@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TaskManager - Gestión de usuarios</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <style>
+      .bg-custom-blue {
+        background-color: #0d6efd;
+      }
+      .auth-container {
+        max-width: 400px;
+        margin: 50px auto;
+      }
+      .verification-input {
+        width: 40px;
+        text-align: center;
+        margin: 0 5px;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <header class="navbar bg-custom-blue py-3 mb-4 justify-content-center">
+      <div class="container-fluid justify-content-center">
+        <span class="navbar-brand mb-0 display-1 h1 fw-bold text-dark"
+          >TaskManager</span
+        >
+      </div>
+    </header>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      async function obtenerDatosProtegidos() {
+        const token = localStorage.getItem("jwt");
+
+        const response = await fetch("/api/datos", {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        const data = await response.json();
+        console.log(data);
+      }
+    </script>
+  </body>
+</html>

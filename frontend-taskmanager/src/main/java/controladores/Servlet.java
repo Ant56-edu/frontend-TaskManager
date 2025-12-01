@@ -11,6 +11,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import utilidades.HttpUtils;
 
+/**
+ * Clase servlet encargada del manejo de peticiones y respuestas HTTP entre
+ * servidor y cliente
+ * 
+ * @author acarrez - 01/12/2025 (DD/MM/YYYY)
+ * @param req  - Petición HTTP
+ * @param resp - Respuesta HTTP
+ */
+
 @WebServlet("/Servlet")
 public class Servlet extends HttpServlet {
 
