@@ -33,7 +33,7 @@
     </header>
     <div class="auth-container">
       <div class="card shadow-sm text-center p-4">
-        <form action="/auth/login" method="post">
+        <form onsubmit="login()"" method="post">
           <div class="mb-3 text-start">
             <label class="form-label">Email</label>
             <input type="email" class="form-control" name="email" required />
@@ -60,7 +60,7 @@
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
 
-        const response = await fetch("/Servlet", {
+        const response = await fetch("../java/controladores/Servlet", {
           method: "POST",
           endpoint: "/auth/login",
           headers: { "Content-Type": "application/json" },

@@ -23,7 +23,7 @@ import utilidades.HttpUtils;
 @WebServlet("/Servlet")
 public class Servlet extends HttpServlet {
 
-    private static final String BASE_API = "https://localhost:8082/api/";
+    private static final String BASE_API = "https://localhost:8080/api/";
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -45,6 +45,15 @@ public class Servlet extends HttpServlet {
 
         } catch (Exception e) {
             resp.getWriter().write("Error llamando al API: " + e.getMessage());
+        }
+
+        switch (endpoint) {
+            case "/auth/login" -> resp.sendRedirect("/frontend-taskmanager/tareas.html");
+            case "/usuarios/nueva" -> resp.sendRedirect("/frontend-taskmanager/usuarios.html");
+            case "/usuarios/listado" -> resp.sendRedirect("/frontend-taskmanager/usuarios.html");
+            case "localhost:8080/api/auth/recover-password" ->
+                resp.sendRedirect("/frontend-taskmanager/verification.html");
+            default -> System.err.println("Esta parte de la web no esta disponible.");
         }
     }
 }
