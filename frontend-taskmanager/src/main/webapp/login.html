@@ -66,6 +66,7 @@
       console.log("TOKEN:", data.token);
     }
 
+    /*
     function sendCredentials() {
       const data = {
         token: sessionStorage.getItem("token")
@@ -78,6 +79,11 @@
         body: JSON.stringify(data)
       }).then(r => r.text())
         .then(console.log);
+    }
+    */
+
+    function redirect(){
+      location.replace("/frontend-taskmanager/src/main/webapp/tareas.html")
     }
   </script>
 </body>

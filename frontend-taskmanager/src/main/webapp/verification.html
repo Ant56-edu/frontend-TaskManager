@@ -91,5 +91,23 @@
         <button class="btn btn-dark w-100">Validar código</button>
       </div>
     </div>
+    <script>
+      async function obtenerDatosProtegidos() {
+        const email = document.getElementById("email").value;
+
+        const response = await fetch("../java/controladores/Servlet", {
+          method: "POST",
+          endpoint: "/auth/recover-password",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        const data = await response.json();
+
+        sessionStorage.setItem("token", data.token);
+
+        console.log("TOKEN RECUPERACIÓN:", data.token);
+      }
+    </script>
   </body>
 </html>

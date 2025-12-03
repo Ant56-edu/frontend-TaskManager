@@ -15,11 +15,12 @@ public class LoginImplementacion implements LoginInterfaz {
      * @throws Exception si ocurre un error de red o si la API devuelve datos
      *                   inválidos.
      */
-    private static final String BASE_API = "http://localhost:8080/api/auth/";
+    private static final String BASE_API = "http://localhost:9090/api/auth/";
 
     @Override
     public String autenticarUsuario(String email, String password) {
         try {
+
             // JSON para la API
             JsonObject bodyJson = new JsonObject();
             bodyJson.addProperty("email", email);

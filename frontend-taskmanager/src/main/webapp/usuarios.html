@@ -50,22 +50,100 @@
         >
       </div>
     </header>
-    <div class="container bg-custom-blue-light rounded rounded-5">
-      <button class="container bg-custom-gray rounded-pill">
-        Something once was here but now it isnt anymore
-      </button>
-      <button class="container bg-custom-gray rounded-pill">Here</button>
-    </div>
-    <div
-      class="container bg-custom-blue-light rounded rounded-5 justify-content-center"
-    >
-      <button
-        class="container bg-custom-gray rounded-pill justify-content-center"
+
+    <div class="d-flex justify-content-between ms-1">
+      <div
+        class="container bg-custom-blue-light rounded-5 p-4"
+        id="listaUsuarios"
+        style="width: 48%"
       >
-        Here
-      </button>
+        <h4 class="mb-4">Crear tarea</h4>
+
+        <form>
+          <!-- Texto -->
+          <div class="mb-1">
+            <label for="nombre" class="form-label">Nombre de la tarea</label>
+            <input class="form-control" type="text" name="nombre" id="nombre" />
+          </div>
+
+          <!-- Búsqueda -->
+          <div class="mb-1">
+            <div class="col-md-6">
+              <label for="gestorEncargado" class="form-label">Gestor</label>
+              <select
+                id="gestorEncargado"
+                class="form-control"
+                data-live-search="true"
+              >
+                <option value="1">Opción 1</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Select + búsqueda -->
+          <div class="row g-3 mb-1">
+            <div class="col-md-6">
+              <label for="empleadosAsignados" class="form-label"
+                >Empleados asignables</label
+              >
+              <select
+                id="empleadosAsignados"
+                class="form-control"
+                data-live-search="true"
+              >
+                <option value="1">Opción 1</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Radio -->
+          <div class="mb-1">
+            <label class="form-label">Boom</label><br />
+            <input
+              class="form-check-input"
+              type="radio"
+              name="estado"
+              id="estado"
+            />
+            <label for="estado" class="form-check-label">Activo</label>
+          </div>
+
+          <!-- Botones -->
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-light btn-outline-success">
+              Crear tarea
+            </button>
+            <button type="reset" class="btn btn-light btn-outline-danger">
+              Limpiar campos
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div
+        class="container bg-custom-blue-light rounded rounded-5"
+        id="listaUsuarios"
+        style="width: 48%"
+      >
+        <br />
+        <button
+          class="w-100 bg-custom-gray rounded-pill d-flex justify-content-between align-items-center"
+        >
+          <span>Something</span>
+          <span class="bg-custom-gray-dark rounded-pill px-3 py-1">Rol </span>
+        </button>
+        <div class="mb-1"></div>
+        <button
+          class="w-100 bg-custom-gray rounded-pill d-flex justify-content-between align-items-center"
+        >
+          <span>Something</span>
+          <span class="bg-custom-gray-dark rounded-pill px-3 py-1">Rol </span>
+        </button>
+        <br />
+      </div>
     </div>
     <footer></footer>
+
     <script>
       async function obtenerDatosProtegidos() {
         const token = sessionStorage.getItem("jwt");

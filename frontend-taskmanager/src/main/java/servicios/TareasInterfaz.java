@@ -3,11 +3,11 @@ package servicios;
 public interface TareasInterfaz {
     void crearUsuario();
 
-    void eliminarusuario();
+    void eliminarusuario(long id);
 
-    void editarUsuario();
+    void editarUsuario(long id);
 
     void listarUsuarios();
 
-    void buscarUsuario();
+    void buscarUsuario(long id);
 }

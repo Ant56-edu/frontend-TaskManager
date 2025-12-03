@@ -22,18 +22,20 @@
     </properties>
 
     <dependencies>
+        <!-- GSON API -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
+        <!-- Servlet API -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <version>6.2.0-M1</version>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
     <build>

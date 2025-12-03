@@ -10,5 +10,5 @@ public interface UsuariosInterfaz {
 
     void listarUsuarios();
 
-    void buscarUsuario();
+    void buscarUsuario(long id);
 }

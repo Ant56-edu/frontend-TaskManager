@@ -5,7 +5,7 @@ import utilidades.HttpUtils;
 
 public class UsuariosImplementacion implements UsuariosInterfaz {
 
-    private static final String BASE_API = "http://localhost:8080/api/usuarios/";
+    private static final String BASE_API = "http://localhost:9090/api/usuarios/";
 
     @Override
     public void crearUsuario() {
@@ -41,15 +41,19 @@ public class UsuariosImplementacion implements UsuariosInterfaz {
     @Override
     public void listarUsuarios() {
         try {
-            HttpUtils.sendBody(BASE_API + "listado", "", "POST");
+            HttpUtils.sendBody(BASE_API + "listado", "", "GET");
         } catch (Exception e) {
             System.err.println("Ocurrió un error al listar a los usuarios: " + e.getMessage());
         }
     }
 
     @Override
-    public void buscarUsuario() {
-
+    public void buscarUsuario(long id) {
+        try {
+            HttpUtils.sendBody(BASE_API + "{" + id + "}", "", "GET");
+        } catch (Exception e) {
+            System.err.println("Ocurrió un error al borrar al usuario con ID " + id + ": " + e.getMessage());
+        }
     }
 
 }
