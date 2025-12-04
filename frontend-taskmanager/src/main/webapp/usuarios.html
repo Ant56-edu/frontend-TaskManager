@@ -13,6 +13,7 @@
     />
 
     <style>
+      /* Estilos reutilizados de la aplicación */
       .bg-custom-blue {
         background-color: #0d6efd;
       }
@@ -22,141 +23,302 @@
       .bg-custom-gray {
         background-color: #a2b6d4;
       }
-      .container {
-        max-width: 400px;
+      .bg-custom-gray-dark {
+        background-color: #6e7a8d;
+      }
+      .main-content {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px;
+        max-width: 1000px;
         margin: 20px auto;
       }
-      .margen-opciones-header-op1 {
-        margin-left: 800px;
-        margin-top: 8px;
+      .form-container,
+      .list-container {
+        padding: 20px;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 50%;
       }
-      .margen-opciones-header-op2 {
-        margin-left: 20px;
-        margin-top: 8px;
+      .list-item {
+        margin-bottom: 8px;
+        padding: 10px 15px;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .list-item:hover {
+        background-color: #bcc3cd;
+      }
+      .role-pill {
+        padding: 0.25em 0.75em;
+        font-size: 0.8em;
+        font-weight: 700;
+        border-radius: 1rem;
       }
     </style>
   </head>
   <body class="bg-light">
     <header class="navbar bg-custom-blue py-3 mb-4 justify-content-center">
-      <div class="container-fluid justify-content-start">
-        <span class="navbar-brand mb-0 display-1 p-1 h1 fw-bold text-dark"
-          >TaskManager</span
-        >
-        <span class="margen-opciones-header-op1 fw-bold text-light"
-          >Gestión de usuarios</span
-        >
-        <span class="margen-opciones-header-op2 fw-bold text-light"
-          >Gestión de tareas</span
+      <div class="container-fluid justify-content-center">
+        <span class="navbar-brand mb-0 display-1 h1 fw-bold text-dark"
+          >TaskManager - Gestión de Usuarios</span
         >
       </div>
     </header>
 
-    <div class="d-flex justify-content-between ms-1">
-      <div
-        class="container bg-custom-blue-light rounded-5 p-4"
-        id="listaUsuarios"
-        style="width: 48%"
-      >
-        <h4 class="mb-4">Crear tarea</h4>
+    <div class="main-content">
+      <!-- Contenedor para el formulario de creación de usuario -->
+      <div class="form-container bg-white">
+        <h3 class="mb-4">Crear Nuevo Usuario</h3>
+        <div
+          id="create-error-message"
+          class="alert alert-danger d-none"
+          role="alert"
+        ></div>
 
-        <form>
-          <!-- Texto -->
-          <div class="mb-1">
-            <label for="nombre" class="form-label">Nombre de la tarea</label>
-            <input class="form-control" type="text" name="nombre" id="nombre" />
-          </div>
-
-          <!-- Búsqueda -->
-          <div class="mb-1">
-            <div class="col-md-6">
-              <label for="gestorEncargado" class="form-label">Gestor</label>
-              <select
-                id="gestorEncargado"
-                class="form-control"
-                data-live-search="true"
-              >
-                <option value="1">Opción 1</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Select + búsqueda -->
-          <div class="row g-3 mb-1">
-            <div class="col-md-6">
-              <label for="empleadosAsignados" class="form-label"
-                >Empleados asignables</label
-              >
-              <select
-                id="empleadosAsignados"
-                class="form-control"
-                data-live-search="true"
-              >
-                <option value="1">Opción 1</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Radio -->
-          <div class="mb-1">
-            <label class="form-label">Boom</label><br />
+        <form
+          id="create-user-form"
+          onsubmit="event.preventDefault(); crearUsuario();"
+        >
+          <div class="mb-3">
+            <label for="new-user-name" class="form-label">Nombre</label>
             <input
-              class="form-check-input"
-              type="radio"
-              name="estado"
-              id="estado"
+              type="text"
+              class="form-control"
+              id="new-user-name"
+              required
             />
-            <label for="estado" class="form-check-label">Activo</label>
+          </div>
+          <div class="mb-3">
+            <label for="new-user-email" class="form-label"
+              >Correo Electrónico</label
+            >
+            <input
+              type="email"
+              class="form-control"
+              id="new-user-email"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="new-user-password" class="form-label">Contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              id="new-user-password"
+              required
+            />
           </div>
 
-          <!-- Botones -->
+          <!-- Elemento SELECT nativo de HTML, estilizado con Bootstrap 5 -->
+          <div class="mb-3">
+            <label for="new-user-role" class="form-label">Rol</label>
+            <select class="form-select" id="new-user-role" required>
+              <option value="Empleado">Empleado</option>
+              <option value="Manager">Manager</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+
           <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-light btn-outline-success">
-              Crear tarea
+            <button type="submit" class="btn btn-dark w-50">
+              Crear Usuario
             </button>
-            <button type="reset" class="btn btn-light btn-outline-danger">
+            <button type="reset" class="btn btn-outline-secondary w-50">
               Limpiar campos
             </button>
           </div>
         </form>
       </div>
 
-      <div
-        class="container bg-custom-blue-light rounded rounded-5"
-        id="listaUsuarios"
-        style="width: 48%"
-      >
-        <br />
+      <!-- Contenedor para el listado de usuarios -->
+      <div class="list-container bg-custom-gray">
+        <h3 class="mb-4">Listado de Usuarios</h3>
         <button
-          class="w-100 bg-custom-gray rounded-pill d-flex justify-content-between align-items-center"
+          class="btn btn-sm btn-dark mb-3 w-100"
+          onclick="listarUsuarios()"
         >
-          <span>Something</span>
-          <span class="bg-custom-gray-dark rounded-pill px-3 py-1">Rol </span>
+          <i class="fas fa-sync-alt"></i> Recargar Usuarios
         </button>
-        <div class="mb-1"></div>
-        <button
-          class="w-100 bg-custom-gray rounded-pill d-flex justify-content-between align-items-center"
-        >
-          <span>Something</span>
-          <span class="bg-custom-gray-dark rounded-pill px-3 py-1">Rol </span>
-        </button>
-        <br />
+        <div id="listaUsuarios">
+          <!-- El listado dinámico se cargará aquí -->
+          <p id="loading-message">Cargando usuarios...</p>
+        </div>
       </div>
     </div>
+
     <footer></footer>
 
     <script>
-      async function obtenerDatosProtegidos() {
-        const token = sessionStorage.getItem("jwt");
+      // Verifica el token al inicio. No usa jQuery.
+      const token = sessionStorage.getItem("token");
 
-        const response = await fetch("/api/datos", {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-        const data = await response.json();
-        console.log(data);
+      if (!token) {
+        // Redirige si no hay token (usuario no autenticado)
+        window.location.href = "login.html";
+        throw new Error("No token found. Redirecting to login.");
       }
+
+      function crearElementoUsuario(usuario) {
+        const item = document.createElement("div");
+        item.className =
+          "list-item d-flex justify-content-between align-items-center bg-custom-gray-light shadow-sm";
+
+        // Determinar el color de la pastilla (pill) según el rol
+        let roleColorClass = "bg-secondary text-white"; // Default
+        if (usuario.rol === "Admin") {
+          roleColorClass = "bg-danger text-white";
+        } else if (usuario.rol === "Manager") {
+          roleColorClass = "bg-primary text-white";
+        } else if (usuario.rol === "Empleado") {
+          roleColorClass = "bg-success text-white";
+        }
+
+        item.innerHTML = `
+            <div>
+                <h5 class="mb-0">${usuario.nombre}</h5>
+                <small class="text-muted">${usuario.email}</small>
+            </div>
+            <span class="role-pill ${roleColorClass}">
+                ${usuario.rol}
+            </span>
+        `;
+        // Listener para posible futura funcionalidad de edición/detalle (Vanilla JS)
+        item.addEventListener("click", () => {
+          // Ejemplo de uso: console.log(\`Click en usuario: \${usuario.nombre}\`);
+        });
+        return item;
+      }
+
+      // Función de listado (Vanilla JS)
+      async function listarUsuarios() {
+        const listaUsuariosDiv = document.getElementById("listaUsuarios");
+        listaUsuariosDiv.innerHTML =
+          "<p id='loading-message'>Cargando usuarios...</p>"; // Mensaje de carga
+
+        if (!token) {
+          listaUsuariosDiv.innerHTML =
+            "<p class='alert alert-warning'>Error: No hay token de sesión. Redirigiendo...</p>";
+          setTimeout(() => (window.location.href = "login.html"), 1000);
+          return;
+        }
+
+        const payload = {
+          metodo: "GET",
+          endpoint: "usuario/listado",
+          body: null,
+          token: token,
+        };
+
+        try {
+          // Uso de Fetch API (Vanilla JS)
+          const response = await fetch("/frontend-taskmanager/Servlet", {
+            method: "POST", // El proxy Servlet solo acepta POST
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          // Verificar si la respuesta fue un error HTTP (4xx o 5xx)
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Error HTTP ${response.status}:`, errorText);
+            throw new Error(
+              `Error HTTP: ${response.status}. Verifique la consola para más detalles.`
+            );
+          }
+
+          const data = await response.json();
+          listaUsuariosDiv.innerHTML = ""; // Limpiar mensaje de carga
+
+          if (data && Array.isArray(data)) {
+            data.forEach((usuario) => {
+              listaUsuariosDiv.appendChild(crearElementoUsuario(usuario));
+            });
+            if (data.length === 0) {
+              listaUsuariosDiv.innerHTML =
+                "<p>No hay usuarios para mostrar.</p>";
+            }
+          } else {
+            // Manejar respuesta JSON inesperada
+            listaUsuariosDiv.innerHTML =
+              "<p class='alert alert-warning'>Error: El formato de los datos de usuarios es incorrecto.</p>";
+            console.error("Datos recibidos no son un array:", data);
+          }
+        } catch (e) {
+          console.error("Error al cargar los usuarios:", e);
+          listaUsuariosDiv.innerHTML = `<p class="alert alert-danger">Error al cargar los usuarios: ${e.message}. Asegúrese de que el Servlet esté accesible en la ruta /Servlet.</p>`;
+        }
+      }
+
+      // Función de creación (Vanilla JS)
+      async function crearUsuario() {
+        const form = document.getElementById("create-user-form");
+        const errorMessageElement = document.getElementById(
+          "create-error-message"
+        );
+        errorMessageElement.classList.add("d-none");
+
+        // Obtener valores directamente del DOM (Vanilla JS)
+        const nombre = document.getElementById("new-user-name").value;
+        const email = document.getElementById("new-user-email").value;
+        const password = document.getElementById("new-user-password").value;
+        const rol = document.getElementById("new-user-role").value;
+
+        const newUser = { nombre, email, password, rol };
+
+        const payload = {
+          metodo: "POST",
+          endpoint: "usuario/nueva",
+          body: JSON.stringify(newUser),
+          token: token,
+        };
+
+        try {
+          // Uso de Fetch API (Vanilla JS)
+          const response = await fetch("/frontend-taskmanager/Servlet", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            // Si el backend devuelve un error HTTP (p.ej. 400), lo capturamos aquí
+            const errorText = await response.text();
+            console.error(`Error HTTP ${response.status}:`, errorText);
+            throw new Error(
+              `Error HTTP: ${response.status}. Verifique la consola.`
+            );
+          }
+
+          const data = await response.json();
+
+          // Asumiendo que el backend devuelve un objeto si la creación fue exitosa
+          if (data && (data.id || data.success)) {
+            // Utilizamos el modal de Bootstrap 5 o un mensaje simple
+            // Usando 'alert' por simplicidad, pero se recomienda un modal personalizado.
+            alert(`Usuario ${nombre} creado con éxito.`);
+            form.reset(); // Limpiar el formulario (Vanilla JS)
+            listarUsuarios(); // Recargar la lista
+          } else {
+            const message =
+              data.message ||
+              "Error al crear el usuario. Credenciales duplicadas o datos incorrectos.";
+            errorMessageElement.textContent = message;
+            errorMessageElement.classList.remove("d-none");
+          }
+        } catch (e) {
+          console.error("Error al crear el usuario:", e);
+          errorMessageElement.textContent = e.message.includes("HTTP")
+            ? e.message
+            : "Error de red o del servidor al crear el usuario.";
+          errorMessageElement.classList.remove("d-none");
+        }
+      }
+
+      // Iniciar la carga de usuarios al cargar la página
+      window.onload = listarUsuarios;
     </script>
   </body>
 </html>

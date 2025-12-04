@@ -1,13 +1,15 @@
 package servicios;
 
+import dto.Tarea;
+
 public interface TareasInterfaz {
-    void crearUsuario();
+    void crearTarea(Tarea tarea);
 
-    void eliminarusuario(long id);
+    void eliminarTarea(long id);
 
-    void editarUsuario(long id);
+    void editarTarea(long id, Tarea tarea);
 
-    void listarUsuarios();
+    String listarTareas();
 
-    void buscarUsuario(long id);
+    String buscarTarea(long id);
 }

@@ -8,9 +8,7 @@ public class UsuariosImplementacion implements UsuariosInterfaz {
     private static final String BASE_API = "http://localhost:9090/api/usuarios/";
 
     @Override
-    public void crearUsuario() {
-        Usuario usuario = new Usuario();
-
+    public void crearUsuario(Usuario usuario) { // CORREGIDO: Recibe un objeto Usuario
         try {
             HttpUtils.sendBody(BASE_API + "nueva", usuario.toString(), "POST");
         } catch (Exception e) {
@@ -28,9 +26,7 @@ public class UsuariosImplementacion implements UsuariosInterfaz {
     }
 
     @Override
-    public void editarUsuario(long id) {
-        Usuario usuario = new Usuario();
-
+    public void editarUsuario(long id, Usuario usuario) { // CORREGIDO: Recibe un objeto Usuario
         try {
             HttpUtils.sendBody(BASE_API + "{" + id + "}", usuario.toString(), "PUT");
         } catch (Exception e) {

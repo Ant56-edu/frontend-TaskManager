@@ -95,18 +95,26 @@
       async function obtenerDatosProtegidos() {
         const email = document.getElementById("email").value;
 
-        const response = await fetch("../java/controladores/Servlet", {
-          method: "POST",
+        const payload = {
+          metodo: "POST",
           endpoint: "/auth/recover-password",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
+        };
+
+        const response = await fetch("/frontend-taskmanager/Servlet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
         });
 
         const data = await response.json();
 
-        sessionStorage.setItem("token", data.token);
-
-        console.log("TOKEN RECUPERACIÓN:", data.token);
+        if (response.ok && data.token) {
+          sessionStorage.setItem("token", data.token);
+          console.log("Token de verificación:", data.token);
+        } else {
+          alert("Error en la solicitud de recuperación.");
+        }
       }
     </script>
   </body>
