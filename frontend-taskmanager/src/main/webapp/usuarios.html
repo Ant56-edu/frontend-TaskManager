@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>TaskManager - Gestión de usuarios</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskManager - Gestión de Usuarios</title>
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -13,26 +15,18 @@
     />
 
     <style>
-      /* Estilos reutilizados de la aplicación */
       .bg-custom-blue {
         background-color: #0d6efd;
-      }
-      .bg-custom-blue-light {
-        background-color: #337ff1;
       }
       .bg-custom-gray {
         background-color: #a2b6d4;
       }
-      .bg-custom-gray-dark {
-        background-color: #6e7a8d;
-      }
       .main-content {
         display: flex;
-        justify-content: space-between;
         gap: 20px;
         padding: 20px;
-        max-width: 1000px;
-        margin: 20px auto;
+        max-width: 1200px;
+        margin: auto;
       }
       .form-container,
       .list-container {
@@ -41,283 +35,622 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         width: 50%;
       }
-      .list-item {
+      .task-item {
         margin-bottom: 8px;
         padding: 10px 15px;
+        background: white;
         border-radius: 0.5rem;
-        cursor: pointer;
-        transition: background-color 0.2s;
       }
-      .list-item:hover {
-        background-color: #bcc3cd;
+      .user-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
       }
-      .role-pill {
-        padding: 0.25em 0.75em;
-        font-size: 0.8em;
-        font-weight: 700;
-        border-radius: 1rem;
+      .user-actions button {
+        font-size: 0.875rem;
+        padding: 5px 12px;
+      }
+
+      /* Toast Notifications */
+      .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+      }
+      .toast {
+        min-width: 300px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      .toast.show {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      /* Modal de confirmación personalizado */
+      .custom-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9998;
+        align-items: center;
+        justify-content: center;
+      }
+      .custom-modal.show {
+        display: flex;
+      }
+      .modal-content-custom {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        max-width: 400px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        animation: modalZoom 0.3s ease-out;
+      }
+      @keyframes modalZoom {
+        from {
+          transform: scale(0.7);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .debug-info {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 10px;
+        margin-top: 10px;
+        font-family: monospace;
+        font-size: 0.875rem;
       }
     </style>
   </head>
+
   <body class="bg-light">
-    <header class="navbar bg-custom-blue py-3 mb-4 justify-content-center">
-      <div class="container-fluid justify-content-center">
-        <span class="navbar-brand mb-0 display-1 h1 fw-bold text-dark"
-          >TaskManager - Gestión de Usuarios</span
-        >
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Modal de Confirmación -->
+    <div class="custom-modal" id="confirm-modal">
+      <div class="modal-content-custom">
+        <h5 id="modal-title" class="mb-3"></h5>
+        <p id="modal-message" class="mb-4"></p>
+        <div class="d-flex gap-2 justify-content-end">
+          <button class="btn btn-secondary" onclick="closeModal()">
+            Cancelar
+          </button>
+          <button
+            class="btn btn-danger"
+            id="modal-confirm-btn"
+            onclick="confirmAction()"
+          >
+            Confirmar
+          </button>
+        </div>
       </div>
+    </div>
+
+    <header class="navbar bg-custom-blue py-3 mb-4 justify-content-center">
+      <span class="navbar-brand display-1 h1 fw-bold text-dark"
+        >TaskManager - Gestión de Usuarios</span
+      >
     </header>
 
     <div class="main-content">
-      <!-- Contenedor para el formulario de creación de usuario -->
+      <!-- FORMULARIO -->
       <div class="form-container bg-white">
-        <h3 class="mb-4">Crear Nuevo Usuario</h3>
-        <div
-          id="create-error-message"
-          class="alert alert-danger d-none"
-          role="alert"
-        ></div>
+        <h3>Crear nuevo usuario</h3>
+
+        <div id="create-error-message" class="alert alert-danger d-none"></div>
 
         <form
           id="create-user-form"
           onsubmit="event.preventDefault(); crearUsuario();"
         >
           <div class="mb-3">
-            <label for="new-user-name" class="form-label">Nombre</label>
+            <label class="form-label">Nombre del usuario</label>
             <input
               type="text"
+              id="new-user-nombre"
               class="form-control"
-              id="new-user-name"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="new-user-email" class="form-label"
-              >Correo Electrónico</label
-            >
-            <input
-              type="email"
-              class="form-control"
-              id="new-user-email"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="new-user-password" class="form-label">Contraseña</label>
-            <input
-              type="password"
-              class="form-control"
-              id="new-user-password"
               required
             />
           </div>
 
-          <!-- Elemento SELECT nativo de HTML, estilizado con Bootstrap 5 -->
           <div class="mb-3">
-            <label for="new-user-role" class="form-label">Rol</label>
-            <select class="form-select" id="new-user-role" required>
-              <option value="Empleado">Empleado</option>
-              <option value="Manager">Manager</option>
-              <option value="Admin">Admin</option>
+            <label class="form-label">Fecha de nacimiento</label>
+            <input
+              type="date"
+              class="form-control"
+              id="new-user-fecha-nacimiento"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email corporativo</label>
+            <input
+              type="email"
+              id="new-user-email"
+              class="form-control"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Teléfono</label>
+            <input id="new-user-tlf" class="form-control" type="tel" required />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Puesto / Rol</label>
+            <select id="new-user-rol" class="form-select">
+              <option value="1">Empleado</option>
+              <option value="2">Gestor</option>
+              <option value="3">Administrador</option>
             </select>
           </div>
 
-          <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-dark w-50">
-              Crear Usuario
-            </button>
-            <button type="reset" class="btn btn-outline-secondary w-50">
-              Limpiar campos
-            </button>
-          </div>
+          <button type="submit" class="btn btn-dark w-100 mt-3">
+            Crear Usuario
+          </button>
         </form>
+
+        <!-- Debug info -->
+        <div id="debug-create" class="debug-info d-none"></div>
       </div>
 
-      <!-- Contenedor para el listado de usuarios -->
+      <!-- LISTADO -->
       <div class="list-container bg-custom-gray">
-        <h3 class="mb-4">Listado de Usuarios</h3>
-        <button
-          class="btn btn-sm btn-dark mb-3 w-100"
-          onclick="listarUsuarios()"
-        >
-          <i class="fas fa-sync-alt"></i> Recargar Usuarios
+        <h3>Listado de Usuarios</h3>
+        <button onclick="listarUsuarios()" class="btn btn-dark w-100 mb-3">
+          Recargar
         </button>
-        <div id="listaUsuarios">
-          <!-- El listado dinámico se cargará aquí -->
-          <p id="loading-message">Cargando usuarios...</p>
-        </div>
+        <div id="listaUsuarios"></div>
+
+        <!-- Debug info -->
+        <div id="debug-list" class="debug-info d-none"></div>
       </div>
     </div>
 
-    <footer></footer>
-
     <script>
-      // Verifica el token al inicio. No usa jQuery.
-      const token = sessionStorage.getItem("token");
+      const token = sessionStorage.getItem("token") || "";
+      let modalCallback = null;
 
-      if (!token) {
-        // Redirige si no hay token (usuario no autenticado)
-        window.location.href = "login.html";
-        throw new Error("No token found. Redirecting to login.");
-      }
+      // ========== SISTEMA DE NOTIFICACIONES ==========
+      function showToast(message, type = "success") {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
 
-      function crearElementoUsuario(usuario) {
-        const item = document.createElement("div");
-        item.className =
-          "list-item d-flex justify-content-between align-items-center bg-custom-gray-light shadow-sm";
+        const icons = {
+          success: "✓",
+          error: "✕",
+          warning: "⚠",
+          info: "ℹ",
+        };
 
-        // Determinar el color de la pastilla (pill) según el rol
-        let roleColorClass = "bg-secondary text-white"; // Default
-        if (usuario.rol === "Admin") {
-          roleColorClass = "bg-danger text-white";
-        } else if (usuario.rol === "Manager") {
-          roleColorClass = "bg-primary text-white";
-        } else if (usuario.rol === "Empleado") {
-          roleColorClass = "bg-success text-white";
-        }
+        const colors = {
+          success: "bg-success",
+          error: "bg-danger",
+          warning: "bg-warning",
+          info: "bg-info",
+        };
 
-        item.innerHTML = `
-            <div>
-                <h5 class="mb-0">${usuario.nombre}</h5>
-                <small class="text-muted">${usuario.email}</small>
-            </div>
-            <span class="role-pill ${roleColorClass}">
-                ${usuario.rol}
-            </span>
+        toast.className = `toast show ${colors[type]} text-white`;
+        toast.innerHTML = `
+          <div class="toast-body d-flex align-items-center">
+            <span style="font-size: 1.5rem; margin-right: 10px;">${icons[type]}</span>
+            <span>${message}</span>
+          </div>
         `;
-        // Listener para posible futura funcionalidad de edición/detalle (Vanilla JS)
-        item.addEventListener("click", () => {
-          // Ejemplo de uso: console.log(\`Click en usuario: \${usuario.nombre}\`);
-        });
-        return item;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.animation = "slideIn 0.3s ease-out reverse";
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
       }
 
-      // Función de listado (Vanilla JS)
-      async function listarUsuarios() {
-        const listaUsuariosDiv = document.getElementById("listaUsuarios");
-        listaUsuariosDiv.innerHTML =
-          "<p id='loading-message'>Cargando usuarios...</p>"; // Mensaje de carga
+      // ========== SISTEMA DE CONFIRMACIÓN ==========
+      function showConfirmModal(
+        title,
+        message,
+        onConfirm,
+        confirmText = "Confirmar",
+        danger = false
+      ) {
+        const modal = document.getElementById("confirm-modal");
+        const titleEl = document.getElementById("modal-title");
+        const messageEl = document.getElementById("modal-message");
+        const confirmBtn = document.getElementById("modal-confirm-btn");
 
-        if (!token) {
-          listaUsuariosDiv.innerHTML =
-            "<p class='alert alert-warning'>Error: No hay token de sesión. Redirigiendo...</p>";
-          setTimeout(() => (window.location.href = "login.html"), 1000);
-          return;
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        confirmBtn.textContent = confirmText;
+        confirmBtn.className = danger ? "btn btn-danger" : "btn btn-primary";
+
+        modalCallback = onConfirm;
+        modal.classList.add("show");
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("confirm-modal");
+        modal.classList.remove("show");
+        modalCallback = null;
+      }
+
+      function confirmAction() {
+        if (modalCallback) {
+          modalCallback();
         }
+        closeModal();
+      }
 
+      // Función auxiliar para mostrar debug
+      function showDebug(elementId, info) {
+        const debugEl = document.getElementById(elementId);
+        debugEl.classList.remove("d-none");
+        debugEl.innerHTML = `<strong>Debug Info:</strong><br>${info}`;
+        console.log(info);
+      }
+
+      // ------------------ LISTAR USUARIOS ------------------
+      async function listarUsuarios() {
+        const lista = document.getElementById("listaUsuarios");
+        lista.innerHTML = "<p>Cargando usuarios...</p>";
+
+        // Payload que espera tu Servlet
         const payload = {
           metodo: "GET",
-          endpoint: "usuario/listado",
+          endpoint: "usuarios/listado", // ✅ CON 'S' - debe coincidir con @RequestMapping("/api/usuarios")
           body: null,
-          token: token,
         };
 
-        try {
-          // Uso de Fetch API (Vanilla JS)
-          const response = await fetch("/frontend-taskmanager/Servlet", {
-            method: "POST", // El proxy Servlet solo acepta POST
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          // Verificar si la respuesta fue un error HTTP (4xx o 5xx)
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Error HTTP ${response.status}:`, errorText);
-            throw new Error(
-              `Error HTTP: ${response.status}. Verifique la consola para más detalles.`
-            );
-          }
-
-          const data = await response.json();
-          listaUsuariosDiv.innerHTML = ""; // Limpiar mensaje de carga
-
-          if (data && Array.isArray(data)) {
-            data.forEach((usuario) => {
-              listaUsuariosDiv.appendChild(crearElementoUsuario(usuario));
-            });
-            if (data.length === 0) {
-              listaUsuariosDiv.innerHTML =
-                "<p>No hay usuarios para mostrar.</p>";
-            }
-          } else {
-            // Manejar respuesta JSON inesperada
-            listaUsuariosDiv.innerHTML =
-              "<p class='alert alert-warning'>Error: El formato de los datos de usuarios es incorrecto.</p>";
-            console.error("Datos recibidos no son un array:", data);
-          }
-        } catch (e) {
-          console.error("Error al cargar los usuarios:", e);
-          listaUsuariosDiv.innerHTML = `<p class="alert alert-danger">Error al cargar los usuarios: ${e.message}. Asegúrese de que el Servlet esté accesible en la ruta /Servlet.</p>`;
-        }
-      }
-
-      // Función de creación (Vanilla JS)
-      async function crearUsuario() {
-        const form = document.getElementById("create-user-form");
-        const errorMessageElement = document.getElementById(
-          "create-error-message"
+        showDebug(
+          "debug-list",
+          `
+          <strong>TEST DIRECTO:</strong> <a href="http://localhost:9090/api/usuarios/listado" target="_blank">Abrir API directamente</a><br><br>
+          <strong>Petición al Servlet:</strong><br>
+          URL: Servlet (POST)<br>
+          API destino: GET http://localhost:9090/api/usuarios/listado<br>
+          Payload: <pre>${JSON.stringify(payload, null, 2)}</pre>
+        `
         );
-        errorMessageElement.classList.add("d-none");
-
-        // Obtener valores directamente del DOM (Vanilla JS)
-        const nombre = document.getElementById("new-user-name").value;
-        const email = document.getElementById("new-user-email").value;
-        const password = document.getElementById("new-user-password").value;
-        const rol = document.getElementById("new-user-role").value;
-
-        const newUser = { nombre, email, password, rol };
-
-        const payload = {
-          metodo: "POST",
-          endpoint: "usuario/nueva",
-          body: JSON.stringify(newUser),
-          token: token,
-        };
 
         try {
-          // Uso de Fetch API (Vanilla JS)
-          const response = await fetch("/frontend-taskmanager/Servlet", {
+          const response = await fetch("Servlet", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
 
+          const responseText = await response.text();
+
+          showDebug(
+            "debug-list",
+            `
+            Response status: ${response.status}<br>
+            Response OK: ${response.ok}<br>
+            Response body: ${responseText.substring(0, 300)}...
+          `
+          );
+
           if (!response.ok) {
-            // Si el backend devuelve un error HTTP (p.ej. 400), lo capturamos aquí
+            throw new Error(`HTTP ${response.status}: ${responseText}`);
+          }
+
+          const result = JSON.parse(responseText);
+
+          showDebug(
+            "debug-list",
+            `
+            Respuesta recibida:<br>
+            ${JSON.stringify(result, null, 2).substring(0, 500)}...
+          `
+          );
+
+          // Extraer array de usuarios
+          const usuarios = Array.isArray(result)
+            ? result
+            : result.data && Array.isArray(result.data)
+            ? result.data
+            : [];
+
+          lista.innerHTML = "";
+
+          if (usuarios.length === 0) {
+            lista.innerHTML = "<p>No hay usuarios registrados.</p>";
+            return;
+          }
+
+          usuarios.forEach((u) => {
+            const item = document.createElement("div");
+            item.className = "task-item";
+
+            const esGestor = u.rol?.toLowerCase() === "gestor";
+            const tareas = esGestor ? u.tareasGestionadas : u.tareasAsignadas;
+
+            item.innerHTML = `
+            <strong>${
+              u.nombre || "Sin nombre"
+            }</strong> <span class="badge bg-secondary">${
+              u.rol || "N/A"
+            }</span><br>
+            <small>ID: ${u.id}</small><br>
+            Correo: ${u.correo || u.email || "N/A"}<br>
+            Teléfono: ${u.tlf || u.telefono || "N/A"}<br>
+            Fecha Nacimiento: ${u.fechaNacimiento || "N/A"}<br>
+
+            Tareas ${esGestor ? "gestionadas" : "asignadas"}:
+            <ul style="margin-bottom: 5px;">
+            ${
+              Array.isArray(tareas) && tareas.length > 0
+                ? tareas.map((t) => `<li>${t.nombre ?? t}</li>`).join("")
+                : "<li>No hay tareas</li>"
+            }
+            </ul>
+
+            <div class="user-actions">
+              <select id="rol-select-${
+                u.id
+              }" class="form-select form-select-sm" style="width: auto;">
+                <option value="Empleado" ${
+                  u.rol === "Empleado" ? "selected" : ""
+                }>Empleado</option>
+                <option value="Gestor" ${
+                  u.rol === "Gestor" ? "selected" : ""
+                }>Gestor</option>
+                <option value="Administrador" ${
+                  u.rol === "Administrador" ? "selected" : ""
+                }>Administrador</option>
+              </select>
+              <button class="btn btn-sm btn-primary" onclick="cambiarRol(${
+                u.id
+              }, ${JSON.stringify(u).replace(/"/g, "&quot;")})">
+                <i class="fas fa-sync-alt"></i> Cambiar Rol
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${
+                u.id
+              }, '${u.nombre || "este usuario"}')">
+                <i class="fas fa-trash"></i> Eliminar
+              </button>
+            </div>
+            `;
+
+            lista.appendChild(item);
+          });
+        } catch (error) {
+          console.error("Error completo:", error);
+
+          let errorMsg = error.message;
+
+          // Detectar errores comunes
+          if (
+            errorMsg.includes("Failed to fetch") ||
+            errorMsg.includes("NetworkError")
+          ) {
+            errorMsg =
+              "No se puede conectar con el Servlet. ¿Está el servidor corriendo?";
+          } else if (errorMsg.includes("405")) {
+            errorMsg =
+              "Error 405: El endpoint no acepta el método. Posibles causas:<br>" +
+              "1. La API en localhost:9090 no está corriendo<br>" +
+              "2. El endpoint /api/usuarios/listado no existe<br>" +
+              "3. Falta configurar CORS en Spring Boot";
+          } else if (errorMsg.includes("404")) {
+            errorMsg =
+              "Error 404: Endpoint no encontrado. Verifica que la API esté en http://localhost:9090/api/usuarios/listado";
+          } else if (errorMsg.includes("500")) {
+            errorMsg =
+              "Error 500: Error interno del servidor. Revisa los logs de Spring Boot.";
+          }
+
+          lista.innerHTML = `
+            <div class="alert alert-danger">
+              <strong>Error al cargar usuarios:</strong><br>
+              ${errorMsg}
+            </div>
+          `;
+
+          showDebug(
+            "debug-list",
+            `
+            <span style="color: red;">ERROR DETALLADO:<br>
+            ${error.message}<br><br>
+            Stack: ${error.stack ? error.stack.substring(0, 300) : "N/A"}</span>
+          `
+          );
+        }
+      }
+
+      // ------------------ CREAR USUARIO ------------------
+      async function crearUsuario() {
+        const nombre = document.getElementById("new-user-nombre").value;
+        const fechaNacimiento = document.getElementById(
+          "new-user-fecha-nacimiento"
+        ).value;
+        const email = document.getElementById("new-user-email").value;
+        const tlf = document.getElementById("new-user-tlf").value;
+        const rolId = parseInt(document.getElementById("new-user-rol").value);
+
+        const nuevoUsuario = {
+          nombre,
+          fechaNacimiento,
+          correo: email,
+          tlf,
+          rolId,
+        };
+
+        const payload = {
+          metodo: "POST",
+          endpoint: "usuarios/nueva", // ¡CORREGIDO! El endpoint es /nueva, no /nuevo
+          body: JSON.stringify(nuevoUsuario),
+        };
+
+        showDebug(
+          "debug-create",
+          `
+          <strong>Petición al Servlet:</strong><br>
+          URL: Servlet (POST)<br>
+          API destino: POST http://localhost:9090/api/usuarios/nueva<br>
+          Payload: <pre>${JSON.stringify(payload, null, 2)}</pre>
+        `
+        );
+
+        try {
+          const response = await fetch("Servlet", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          showDebug(
+            "debug-create",
+            `
+            Response status: ${response.status}<br>
+            Response OK: ${response.ok}
+          `
+          );
+
+          if (!response.ok) {
             const errorText = await response.text();
-            console.error(`Error HTTP ${response.status}:`, errorText);
-            throw new Error(
-              `Error HTTP: ${response.status}. Verifique la consola.`
-            );
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
           }
 
           const data = await response.json();
 
-          // Asumiendo que el backend devuelve un objeto si la creación fue exitosa
-          if (data && (data.id || data.success)) {
-            // Utilizamos el modal de Bootstrap 5 o un mensaje simple
-            // Usando 'alert' por simplicidad, pero se recomienda un modal personalizado.
-            alert(`Usuario ${nombre} creado con éxito.`);
-            form.reset(); // Limpiar el formulario (Vanilla JS)
-            listarUsuarios(); // Recargar la lista
+          if (data.id || data.success || data.nombre) {
+            showToast("Usuario creado con éxito", "success");
+            document.getElementById("create-user-form").reset();
+            document.getElementById("debug-create").classList.add("d-none");
+            listarUsuarios();
           } else {
-            const message =
-              data.message ||
-              "Error al crear el usuario. Credenciales duplicadas o datos incorrectos.";
-            errorMessageElement.textContent = message;
-            errorMessageElement.classList.remove("d-none");
+            throw new Error(
+              data.message || "Error desconocido al crear usuario"
+            );
           }
-        } catch (e) {
-          console.error("Error al crear el usuario:", e);
-          errorMessageElement.textContent = e.message.includes("HTTP")
-            ? e.message
-            : "Error de red o del servidor al crear el usuario.";
-          errorMessageElement.classList.remove("d-none");
+        } catch (error) {
+          console.error("Error:", error);
+          showToast("Error al crear usuario: " + error.message, "error");
+
+          showDebug(
+            "debug-create",
+            `
+            <span style="color: red;">ERROR: ${error.message}</span>
+          `
+          );
         }
       }
 
-      // Iniciar la carga de usuarios al cargar la página
+      // ------------------ CAMBIAR ROL DE USUARIO ------------------
+      async function cambiarRol(userId, usuarioCompleto) {
+        const nuevoRol = document.getElementById(`rol-select-${userId}`).value;
+
+        showConfirmModal(
+          "Cambiar Rol",
+          `¿Cambiar el rol de ${usuarioCompleto.nombre} a ${nuevoRol}?`,
+          async () => {
+            // Crear una copia del usuario completo y actualizar solo el rol
+            const usuarioActualizado = {
+              ...usuarioCompleto,
+              rol: nuevoRol,
+            };
+
+            const payload = {
+              metodo: "PUT",
+              endpoint: `usuarios/${userId}`,
+              body: JSON.stringify(usuarioActualizado),
+            };
+
+            console.log("Cambiando rol:", payload);
+
+            try {
+              const response = await fetch("Servlet", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+
+              const responseText = await response.text();
+
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${responseText}`);
+              }
+
+              showToast(`Rol actualizado a: ${nuevoRol}`, "success");
+              listarUsuarios();
+            } catch (error) {
+              console.error("Error:", error);
+              showToast("Error al cambiar el rol: " + error.message, "error");
+            }
+          },
+          "Cambiar Rol",
+          false
+        );
+      }
+
+      // ------------------ ELIMINAR USUARIO ------------------
+      async function eliminarUsuario(userId, nombreUsuario) {
+        showConfirmModal(
+          "⚠️ Eliminar Usuario",
+          `¿Estás seguro de que quieres eliminar a "${nombreUsuario}"? Esta acción no se puede deshacer.`,
+          async () => {
+            const payload = {
+              metodo: "DELETE",
+              endpoint: `usuarios/borrar/${userId}`,
+              body: null,
+            };
+
+            console.log("Eliminando usuario:", payload);
+
+            try {
+              const response = await fetch("Servlet", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+
+              // DELETE puede devolver 204 No Content (sin body)
+              if (response.status === 204 || response.ok) {
+                showToast(
+                  `Usuario "${nombreUsuario}" eliminado correctamente`,
+                  "success"
+                );
+                listarUsuarios();
+              } else {
+                const responseText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${responseText}`);
+              }
+            } catch (error) {
+              console.error("Error:", error);
+              showToast("Error al eliminar usuario: " + error.message, "error");
+            }
+          },
+          "Eliminar",
+          true
+        );
+      }
+
       window.onload = listarUsuarios;
     </script>
   </body>

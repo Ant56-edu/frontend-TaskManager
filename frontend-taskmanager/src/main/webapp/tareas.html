@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TaskManager - Gestión de Tareas</title>
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -14,351 +15,215 @@
     />
 
     <style>
-      /* Estilos reutilizados */
       .bg-custom-blue {
         background-color: #0d6efd;
-      }
-      .bg-custom-blue-light {
-        background-color: #337ff1;
       }
       .bg-custom-gray {
         background-color: #a2b6d4;
       }
-      .bg-custom-gray-dark {
-        background-color: #6e7a8d;
-      }
       .main-content {
         display: flex;
-        justify-content: space-between;
         gap: 20px;
         padding: 20px;
         max-width: 1200px;
-        margin: 20px auto;
+        margin: auto;
       }
       .form-container,
       .list-container {
         padding: 20px;
         border-radius: 0.5rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        width: 50%; /* Ocupan la mitad cada uno */
+        width: 50%;
       }
       .task-item {
         margin-bottom: 8px;
         padding: 10px 15px;
+        background: white;
         border-radius: 0.5rem;
         cursor: pointer;
-        transition: background-color 0.2s;
-        border-left: 5px solid; /* Para el indicador de estado */
-      }
-      .task-item:hover {
-        background-color: #d8e0eb;
-      }
-      .status-pill {
-        padding: 0.25em 0.75em;
-        font-size: 0.8em;
-        font-weight: 700;
-        border-radius: 1rem;
       }
     </style>
   </head>
+
   <body class="bg-light">
     <header class="navbar bg-custom-blue py-3 mb-4 justify-content-center">
-      <div class="container-fluid justify-content-center">
-        <span class="navbar-brand mb-0 display-1 h1 fw-bold text-dark"
-          >TaskManager - Gestión de Tareas</span
-        >
-      </div>
+      <span class="navbar-brand display-1 h1 fw-bold text-dark"
+        >TaskManager - Gestión de Tareas</span
+      >
     </header>
 
     <div class="main-content">
-      <!-- Contenedor para el formulario de creación de tarea -->
+      <!-- FORMULARIO -->
       <div class="form-container bg-white">
-        <h3 class="mb-4">Crear Nueva Tarea</h3>
-        <div
-          id="create-error-message"
-          class="alert alert-danger d-none"
-          role="alert"
-        ></div>
+        <h3>Crear Nueva Tarea</h3>
+
+        <div id="create-error-message" class="alert alert-danger d-none"></div>
 
         <form
           id="create-task-form"
           onsubmit="event.preventDefault(); crearTarea();"
         >
           <div class="mb-3">
-            <label for="new-task-titulo" class="form-label">Título</label>
+            <label class="form-label">Nombre de la tarea</label>
             <input
               type="text"
+              id="new-task-nombre"
               class="form-control"
-              id="new-task-titulo"
               required
             />
           </div>
-          <div class="mb-3">
-            <label for="new-task-descripcion" class="form-label"
-              >Descripción</label
-            >
-            <textarea
-              class="form-control"
-              id="new-task-descripcion"
-              rows="3"
-              required
-            ></textarea>
-          </div>
 
-          <!-- SELECT nativo de HTML para el estado -->
           <div class="mb-3">
-            <label for="new-task-estado" class="form-label">Estado</label>
-            <select class="form-select" id="new-task-estado" required>
+            <label class="form-label">Estado</label>
+            <select id="new-task-estado" class="form-select" required>
               <option value="PENDIENTE">Pendiente</option>
-              <option value="EN_PROGRESO">En Progreso</option>
+              <option value="EN_PROGRESO">En progreso</option>
               <option value="COMPLETADA">Completada</option>
             </select>
           </div>
 
-          <!-- SELECT nativo de HTML para el usuario asignado (Asumimos que la lista de usuarios debería cargarse aquí) -->
           <div class="mb-3">
-            <label for="new-task-usuarioId" class="form-label"
-              >Asignar a Usuario</label
-            >
-            <!-- Nota: Por simplicidad, este select está vacío. En una aplicación real, se cargaría dinámicamente -->
-            <select class="form-select" id="new-task-usuarioId" required>
-              <option value="1">Usuario Ejemplo 1 (ID: 1)</option>
-              <option value="2">Usuario Ejemplo 2 (ID: 2)</option>
+            <label class="form-label">Gestor Encargado</label>
+            <select id="new-task-gestor" class="form-select" required>
+              <option value="1">Usuario Ejemplo 1</option>
+              <option value="2">Usuario Ejemplo 2</option>
             </select>
-            <small class="form-text text-muted"
-              >Esta lista debería ser cargada con `listarUsuarios()`</small
-            >
           </div>
 
-          <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-dark w-50">
-              <i class="fas fa-plus-circle"></i> Crear Tarea
-            </button>
-            <button type="reset" class="btn btn-outline-secondary w-50">
-              Limpiar campos
-            </button>
+          <div class="mb-3">
+            <label class="form-label">Empleados Asignados</label>
+            <select id="new-task-empleados" multiple class="form-select">
+              <option value="1">Empleado 1</option>
+              <option value="2">Empleado 2</option>
+              <option value="3">Empleado 3</option>
+            </select>
+            <small>Puedes seleccionar varios con CTRL</small>
           </div>
+
+          <button type="submit" class="btn btn-dark w-100 mt-3">
+            Crear Tarea
+          </button>
         </form>
       </div>
 
-      <!-- Contenedor para el listado de tareas -->
+      <!-- LISTADO -->
       <div class="list-container bg-custom-gray">
-        <h3 class="mb-4">Listado de Tareas</h3>
-        <button class="btn btn-sm btn-dark mb-3 w-100" onclick="listarTareas()">
-          <i class="fas fa-sync-alt"></i> Recargar Tareas
+        <h3>Listado de Tareas</h3>
+        <button onclick="listarTareas()" class="btn btn-dark w-100 mb-3">
+          Recargar
         </button>
-        <div id="listaTareas">
-          <!-- El listado dinámico se cargará aquí -->
-          <p id="loading-message">Cargando tareas...</p>
-        </div>
+        <div id="listaTareas"></div>
       </div>
     </div>
 
-    <footer></footer>
-
     <script>
-      // *** VERIFICACIÓN Y LÓGICA DE LA PÁGINA DE TAREAS (VANILLA JS) ***
-
       const token = sessionStorage.getItem("token");
 
-      if (!token) {
-        // Redirige si no hay token (usuario no autenticado)
-        window.location.href = "login.html";
-        throw new Error("No token found. Redirecting to login.");
-      }
-
-      function getStatusPill(estado) {
-        let colorClass = "bg-secondary text-white"; // Default
-        let borderClass = "border-secondary"; // Default border color for the item
-
-        switch (estado) {
-          case "PENDIENTE":
-            colorClass = "bg-danger text-white";
-            borderClass = "border-danger";
-            break;
-          case "EN_PROGRESO":
-            colorClass = "bg-warning text-dark";
-            borderClass = "border-warning";
-            break;
-          case "COMPLETADA":
-            colorClass = "bg-success text-white";
-            borderClass = "border-success";
-            break;
-        }
-
-        return { colorClass, borderClass };
-      }
-
-      function crearElementoTarea(tarea) {
-        const { colorClass, borderClass } = getStatusPill(tarea.estado);
-
-        const item = document.createElement("div");
-        item.className = `task-item d-flex justify-content-between align-items-center bg-white shadow-sm ${borderClass}`;
-        item.style.borderLeftWidth = "5px";
-        item.style.borderLeftStyle = "solid";
-
-        item.innerHTML = `
-            <div>
-                <h5 class="mb-1">${tarea.titulo}</h5>
-                <small class="text-muted text-truncate d-block" style="max-width: 300px;">${
-                  tarea.descripcion || "Sin descripción"
-                }</small>
-            </div>
-            <div class="text-end">
-                <span class="status-pill ${colorClass}">
-                    ${tarea.estado.replace("_", " ")}
-                </span>
-                <small class="text-muted d-block mt-1">Asignado a: ${
-                  tarea.usuario || "N/A"
-                }</small>
-            </div>
-        `;
-
-        // Listener para posible futura funcionalidad de edición/detalle (Vanilla JS)
-        item.addEventListener("click", () => {
-          // Se puede redirigir a tareasDetalle.html con el ID de la tarea
-          // window.location.href = \`tareasDetalle.html?id=\${tarea.id}\`;
-          // Por ahora solo un log
-          console.log(`Click en tarea: ${tarea.titulo} (ID: ${tarea.id})`);
-        });
-        return item;
-      }
-
-      // Función para listar tareas (Vanilla JS)
+      // ------------------ LISTAR TAREAS ------------------
       async function listarTareas() {
-        const listaTareasDiv = document.getElementById("listaTareas");
-        listaTareasDiv.innerHTML =
-          "<p id='loading-message'>Cargando tareas...</p>"; // Mensaje de carga
-
-        if (!token) {
-          listaTareasDiv.innerHTML =
-            "<p class='alert alert-warning'>Error: No hay token de sesión. Redirigiendo...</p>";
-          setTimeout(() => (window.location.href = "login.html"), 1000);
-          return;
-        }
+        const lista = document.getElementById("listaTareas");
+        lista.innerHTML = "<p>Cargando tareas...</p>";
 
         const payload = {
           metodo: "GET",
-          // Corregido el endpoint: asumimos /tareas/listado
           endpoint: "tarea/listado",
           body: null,
           token: token,
         };
 
         try {
-          // *** CAMBIO CLAVE: Usar ruta relativa "Servlet" en lugar de "/Servlet" ***
           const response = await fetch("Servlet", {
-            method: "POST", // Proxy Servlet usa POST
+            method: "POST", // ✔ SIEMPRE POST AL SERVLET
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
+            body: JSON.stringify(payload), // ✔ El body ahora es legal
           });
 
           if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Error HTTP ${response.status}:`, errorText);
-            throw new Error(
-              `Error HTTP: ${response.status}. Verifique la consola para más detalles.`
-            );
+            lista.innerHTML =
+              "<p class='text-danger'>Error al obtener tareas.</p>";
+            return;
           }
 
-          const data = await response.json();
-          listaTareasDiv.innerHTML = ""; // Limpiar mensaje de carga
+          const result = await response.json();
 
-          if (data && Array.isArray(data)) {
-            data.forEach((tarea) => {
-              // Asumimos que cada tarea tiene {id, titulo, descripcion, estado, usuarioId (o nombre)}
-              // Simulación de datos para que la lista se vea bien:
-              const taskWithDefaults = {
-                id: tarea.id || Math.random(),
-                titulo: tarea.titulo || "Tarea Sin Título",
-                descripcion: tarea.descripcion || "Descripción por defecto.",
-                estado: tarea.estado || "PENDIENTE",
-                usuario: `Usuario ${tarea.usuarioId || "No Asignado"}`,
-              };
-              listaTareasDiv.appendChild(crearElementoTarea(taskWithDefaults));
-            });
-            if (data.length === 0) {
-              listaTareasDiv.innerHTML = "<p>No hay tareas para mostrar.</p>";
-            }
-          } else {
-            listaTareasDiv.innerHTML =
-              "<p class='alert alert-warning'>Error: El formato de los datos de tareas es incorrecto.</p>";
-            console.error("Datos recibidos no son un array:", data);
+          const tareas = Array.isArray(result)
+            ? result
+            : result.data && Array.isArray(result.data)
+            ? result.data
+            : [];
+
+          lista.innerHTML = "";
+
+          if (tareas.length === 0) {
+            lista.innerHTML = "<p>No hay tareas registradas.</p>";
+            return;
           }
-        } catch (e) {
-          console.error("Error al cargar las tareas:", e);
-          listaTareasDiv.innerHTML = `<p class="alert alert-danger">Error al cargar las tareas: ${e.message}. Asegúrese de que el Servlet esté accesible.</p>`;
+
+          tareas.forEach((t) => {
+            const item = document.createElement("div");
+            item.className = "task-item";
+
+            item.innerHTML = `
+                <strong>${t.nombre}</strong><br>
+                Estado: ${t.estadoTarea || "N/A"}<br>
+                Gestor: ${t.gestorEncargado?.nombre || "Sin asignar"}<br>
+                Empleados asignados: ${t.empleadosAsignados?.length || 0}
+            `;
+
+            lista.appendChild(item);
+          });
+        } catch (error) {
+          console.error("Error:", error);
+          lista.innerHTML =
+            "<p class='text-danger'>Error al conectar con el servidor.</p>";
         }
       }
 
-      // Función de creación de tarea (Vanilla JS)
+      // ------------------ CREAR TAREA ------------------
       async function crearTarea() {
-        const form = document.getElementById("create-task-form");
-        const errorMessageElement = document.getElementById(
-          "create-error-message"
+        const nombre = document.getElementById("new-task-nombre").value;
+        const estadoTarea = document.getElementById("new-task-estado").value;
+        const gestorEncargadoId = parseInt(
+          document.getElementById("new-task-gestor").value
         );
-        errorMessageElement.classList.add("d-none");
 
-        // Obtener valores directamente del DOM (Vanilla JS)
-        const titulo = document.getElementById("new-task-titulo").value;
-        const descripcion = document.getElementById(
-          "new-task-descripcion"
-        ).value;
-        const estado = document.getElementById("new-task-estado").value;
-        const usuarioId = document.getElementById("new-task-usuarioId").value; // Asume que el valor es el ID
+        const empleadosSelect = document.getElementById("new-task-empleados");
+        const empleadosAsignadosIds = Array.from(
+          empleadosSelect.selectedOptions
+        ).map((o) => parseInt(o.value));
 
         const nuevaTarea = {
-          titulo,
-          descripcion,
-          estado,
-          usuarioId: parseInt(usuarioId),
+          nombre,
+          fechaCreacion: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+          estadoTarea,
+          gestorEncargadoId,
+          empleadosAsignadosIds,
         };
 
         const payload = {
           metodo: "POST",
-          // Corregido el endpoint: asumimos /tareas/nueva
           endpoint: "tarea/nueva",
           body: JSON.stringify(nuevaTarea),
           token: token,
         };
 
-        try {
-          // *** CAMBIO CLAVE: Usar ruta relativa "Servlet" en lugar de "/Servlet" ***
-          const response = await fetch("Servlet", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
+        const response = await fetch("Servlet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Error HTTP ${response.status}:`, errorText);
-            throw new Error(`Error HTTP: ${response.status}.`);
-          }
+        const data = await response.json();
 
-          const data = await response.json();
-
-          if (data && (data.id || data.success)) {
-            // Notificación simple de éxito
-            alert(`Tarea "${titulo}" creada con éxito.`);
-            form.reset(); // Limpiar el formulario
-            listarTareas(); // Recargar la lista
-          } else {
-            const message =
-              data.message || "Error al crear la tarea. Verifique los datos.";
-            errorMessageElement.textContent = message;
-            errorMessageElement.classList.remove("d-none");
-          }
-        } catch (e) {
-          console.error("Error al crear la tarea:", e);
-          errorMessageElement.textContent = e.message.includes("HTTP")
-            ? e.message
-            : "Error de red o del servidor al crear la tarea.";
-          errorMessageElement.classList.remove("d-none");
+        if (data.id) {
+          alert("Tarea creada con éxito");
+          document.getElementById("create-task-form").reset();
+          listarTareas();
+        } else {
+          alert("Error al crear la tarea");
         }
       }
 
-      // Iniciar la carga de tareas al cargar la página
       window.onload = listarTareas;
     </script>
   </body>
