@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskManager - Gestión de Tareas</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <style>
+      .bg-custom-blue {
+        background-color: #0d6efd;
+      }
+      .bg-custom-gray {
+        background-color: #a2b6d4;
+      }
+      .main-content {
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        max-width: 1200px;
+        margin: auto;
+      }
+      .form-container,
+      .list-container {
+        padding: 20px;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 50%;
+      }
+      .task-item {
+        margin-bottom: 8px;
+        padding: 10px 15px;
+        background: white;
+        border-radius: 0.5rem;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body class="bg-light">
+    <header class="navbar bg-custom-blue py-3 px-3 mb-4 justify-content-between">
+      <span class="navbar-brand display-1 h1 fw-bold text-dark"
+        >TaskManager - Gestión de Tareas</span
+      >
+      <span>
+      <a class="navbar-brand display-1 h1 fw-bold text-light" href="/frontend-taskmanager/tareas.html">Gestión de tareas</a>
+      <a class="navbar-brand display-1 h1 fw-bold text-light" href="/frontend-taskmanager/usuarios.html">Gestión de usuarios</a>
+    </span>
+    </header>
+
+    <div class="main-content">
+      <!-- FORMULARIO -->
+      <div class="form-container bg-white">
+        <h3>Crear Nueva Tarea</h3>
+
+        <div id="create-error-message" class="alert alert-danger d-none"></div>
+
+        <form
+          id="create-task-form"
+          onsubmit="event.preventDefault(); crearTarea();"
+        >
+          <div class="mb-3">
+            <label class="form-label">Nombre de la tarea</label>
+            <input
+              type="text"
+              id="new-task-nombre"
+              class="form-control"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Estado</label>
+            <select id="new-task-estado" class="form-select" required>
+              <option value="PENDIENTE">Pendiente</option>
+              <option value="EN_PROGRESO">En progreso</option>
+              <option value="COMPLETADA">Completada</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Gestor Encargado</label>
+            <select id="new-task-gestor" class="form-select" required>
+              <option value="">Cargando gestores...</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Empleados Asignados</label>
+            <select id="new-task-empleados" multiple class="form-select">
+              <option value="">Cargando empleados...</option>
+            </select>
+            <small>Puedes seleccionar varios con CTRL</small>
+          </div>
+
+          <button type="submit" class="btn btn-dark w-100 mt-3">
+            Crear Tarea
+          </button>
+        </form>
+      </div>
+
+      <!-- LISTADO -->
+      <div class="list-container bg-custom-gray">
+        <h3>Listado de Tareas</h3>
+        <button onclick="listarTareas()" class="btn btn-dark w-100 mb-3">
+          Recargar
+        </button>
+        <div id="listaTareas"></div>
+      </div>
+    </div>
+
+    <script>
+      const token = sessionStorage.getItem("token");
+
+      // ------------------ CARGAR USUARIOS Y FILTRAR POR ROL ------------------
+      async function cargarUsuarios() {
+        const payload = {
+          metodo: "GET",
+          endpoint: "usuarios/listado",
+          body: null,
+          token: token,
+        };
+
+        try {
+          const response = await fetch("Servlet", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            console.error("Error al cargar usuarios");
+            return;
+          }
+
+          const result = await response.json();
+          const usuarios = Array.isArray(result) ? result : result.data || [];
+
+          // Filtrar gestores y empleados
+          const gestores = usuarios.filter(u => u.rol === "Gestor");
+          const empleados = usuarios.filter(u => u.rol === "Empleado");
+
+          cargarGestores(gestores);
+          cargarEmpleados(empleados);
+        } catch (error) {
+          console.error("Error al cargar usuarios:", error);
+        }
+      }
+
+      // ------------------ CARGAR GESTORES ------------------
+      function cargarGestores(gestores) {
+        const selectGestor = document.getElementById("new-task-gestor");
+        selectGestor.innerHTML = "";
+
+        if (gestores.length === 0) {
+          selectGestor.innerHTML = "<option value=''>No hay gestores disponibles</option>";
+          return;
+        }
+
+        gestores.forEach((gestor) => {
+          const option = document.createElement("option");
+          option.value = gestor.id;
+          option.textContent = `${gestor.nombre}`.trim();
+          selectGestor.appendChild(option);
+        });
+      }
+
+      // ------------------ CARGAR EMPLEADOS ------------------
+      function cargarEmpleados(empleados) {
+        const selectEmpleados = document.getElementById("new-task-empleados");
+        selectEmpleados.innerHTML = "";
+
+        if (empleados.length === 0) {
+          selectEmpleados.innerHTML = "<option value=''>No hay empleados disponibles</option>";
+          return;
+        }
+
+        empleados.forEach((empleado) => {
+          const option = document.createElement("option");
+          option.value = empleado.id;
+          option.textContent = `${empleado.nombre}`.trim();
+          selectEmpleados.appendChild(option);
+        });
+      }
+
+      // ------------------ LISTAR TAREAS ------------------
+      async function listarTareas() {
+        const lista = document.getElementById("listaTareas");
+        lista.innerHTML = "<p>Cargando tareas...</p>";
+
+        const payload = {
+          metodo: "GET",
+          endpoint: "tarea/listado",
+          body: null,
+          token: token,
+        };
+
+        try {
+          const response = await fetch("Servlet", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            lista.innerHTML =
+              "<p class='text-danger'>Error al obtener tareas.</p>";
+            return;
+          }
+
+          const result = await response.json();
+
+          const tareas = Array.isArray(result)
+            ? result
+            : result.data && Array.isArray(result.data)
+            ? result.data
+            : [];
+
+          lista.innerHTML = "";
+
+          if (tareas.length === 0) {
+            lista.innerHTML = "<p>No hay tareas registradas.</p>";
+            return;
+          }
+
+          tareas.forEach((t) => {
+            const item = document.createElement("div");
+            item.className = "task-item";
+            item.style.cursor = "pointer";
+            item.onclick = () => {
+              window.location.href = `/frontend-taskmanager/tareasDetalle.html?id=${t.id}`;
+            };
+
+            item.innerHTML = `
+                <strong>${t.nombre}</strong><br>
+                Estado: ${t.estadoTarea || "N/A"}<br>
+                Gestor: ${t.gestorEncargado?.nombre || "Sin asignar"}<br>
+                Empleados asignados: ${t.empleadosAsignados?.length || 0}
+                <i class="fas fa-chevron-right float-end"></i>
+            `;
+
+            lista.appendChild(item);
+          });
+        } catch (error) {
+          console.error("Error:", error);
+          lista.innerHTML =
+            "<p class='text-danger'>Error al conectar con el servidor.</p>";
+        }
+      }
+
+      // ------------------ CREAR TAREA ------------------
+      async function crearTarea() {
+        const nombre = document.getElementById("new-task-nombre").value.trim();
+        const estadoTarea = document.getElementById("new-task-estado").value;
+        const gestorValue = document.getElementById("new-task-gestor").value;
+        
+        if (!gestorValue || gestorValue === "") {
+          alert("Por favor selecciona un gestor encargado");
+          return;
+        }
+        
+        const gestorId = parseInt(gestorValue);
+
+        const empleadosSelect = document.getElementById("new-task-empleados");
+        const empleadosIds = Array.from(empleadosSelect.selectedOptions)
+          .filter(o => o.value && o.value !== "")
+          .map(o => parseInt(o.value));
+
+        if (isNaN(gestorId)) {
+          alert("Error: ID de gestor inválido");
+          return;
+        }
+
+        // FORMATO CORRECTO: Objetos anidados con {id: X}
+        const nuevaTarea = {
+          nombre: nombre,
+          fechaCreacion: new Date().toISOString().split("T")[0],
+          estadoTarea: estadoTarea,
+          gestorEncargado: {
+            id: gestorId
+          },
+          empleadosAsignados: empleadosIds.map(empId => ({id: empId}))
+        };
+
+        console.log("=== DEBUG CREAR TAREA ===");
+        console.log("Objeto a enviar:", nuevaTarea);
+        console.log("JSON:", JSON.stringify(nuevaTarea));
+        console.log("========================");
+
+        const payload = {
+          metodo: "POST",
+          endpoint: "tarea/nueva",
+          body: JSON.stringify(nuevaTarea),
+          token: token,
+        };
+
+        try {
+          const response = await fetch("Servlet", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+          console.log("=== RESPUESTA DEL SERVIDOR ===");
+          console.log(data);
+          console.log("==============================");
+
+          if (data.id) {
+            const gestorOk = data.gestorEncargado !== null;
+            const empsOk = data.empleadosAsignados?.length || 0;
+            
+            alert(`Tarea creada!\nID: ${data.id}\nGestor: ${gestorOk ? '✓' : '✗'}\nEmpleados: ${empsOk}`);
+            document.getElementById("create-task-form").reset();
+            listarTareas();
+          } else {
+            alert("Error: " + (data.message || "Error desconocido"));
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Error al conectar con el servidor");
+        }
+      }
+
+      // ------------------ INICIALIZACIÓN ------------------
+      window.onload = function() {
+        cargarUsuarios();
+        listarTareas();
+      };
+    </script>
+  </body>
+</html>

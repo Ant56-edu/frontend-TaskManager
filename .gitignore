@@ -13,3 +13,6 @@ buildNumber.properties
 
 .class
 
+
+frontend-taskmanager/docker-frontend-taskmanager/logs/*.log
+frontend-taskmanager/docker-frontend-taskmanager/logs/*.txt

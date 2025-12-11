@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskManager - Inicio</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <style>
+      /* Estilos personalizados para la estética */
+      .bg-custom-blue {
+        background-color: #0d6efd;
+      }
+      .hero-section {
+        padding: 60px 0;
+        text-align: center;
+        background-color: #e9ecef;
+        border-radius: 0.5rem;
+      }
+      .action-buttons {
+        margin-top: 30px;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <!-- Header/Barra de Navegación -->
+    <header class="navbar bg-custom-blue py-3 mb-4 justify-content-center">
+      <div class="container-fluid justify-content-center">
+        <span class="navbar-brand mb-0 display-4 h1 fw-bold text-white"
+          >TaskManager</span
+        >
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="hero-section shadow-lg">
+        <h1 class="display-5 fw-bold text-dark mb-4">
+          Gestiona tus tareas de forma inteligente
+        </h1>
+        <p class="lead text-muted mb-5">
+          Tu plataforma centralizada para organizar, priorizar y completar todas
+          tus actividades diarias y proyectos.
+        </p>
+
+        <!-- Contenedor de botones de acción -->
+        <div class="action-buttons" id="auth-actions">
+          <!-- Los botones se insertarán aquí por JavaScript -->
+          <p class="text-info">Comprobando estado de la sesión...</p>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      /**
+       * Verifica la existencia de un token de sesión y actualiza los botones de la interfaz.
+       */
+      document.addEventListener("DOMContentLoaded", () => {
+        checkSession();
+      });
+
+      function checkSession() {
+        const token = sessionStorage.getItem("token");
+        const actionsContainer = document.getElementById("auth-actions");
+
+        // Limpiar el contenido anterior
+        actionsContainer.innerHTML = "";
+
+        if (token) {
+          // Si hay token, la sesión está iniciada
+          actionsContainer.innerHTML = `
+            <p class="text-success mb-3 fw-bold">¡Sesión iniciada!</p>
+            <button onclick="window.location.href='tareas.html'" class="btn btn-success btn-lg me-3 shadow">
+                <i class="fas fa-list-check me-2"></i> Ir a Mis Tareas
+            </button>
+            <button onclick="logout()" class="btn btn-outline-danger btn-lg shadow">
+                <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+            </button>
+          `;
+        } else {
+          // Si no hay token, mostrar el botón de login
+          actionsContainer.innerHTML = `
+            <p class="text-warning mb-3">No hay sesión activa.</p>
+            <button onclick="window.location.href='login.html'" class="btn btn-dark btn-lg shadow">
+                <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión / Registrarse
+            </button>
+          `;
+        }
+      }
+
+      /**
+       * Elimina el token de sesión y redirige al inicio.
+       */
+      function logout() {
+        sessionStorage.removeItem("token");
+        alert("Sesión cerrada. Serás redirigido al inicio.");
+        checkSession(); // Actualiza la vista inmediatamente
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

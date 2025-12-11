@@ -1,0 +1,4 @@
+- "WEB-INF/lib/gson-2.13.2.jar"
+- "WEB-INF/lib/error_prone_annotations-2.41.0.jar"
+- "WEB-INF/lib-provided/jakarta.servlet-api-6.2.0-M1.jar"
+- "WEB-INF/lib/spring-boot-jarmode-tools-4.0.0.jar"

@@ -18,7 +18,7 @@ import utilidades.HttpUtils;
 @WebServlet("/Servlet")
 public class Servlet extends HttpServlet {
 
-    private static final String BASE_API = "http://localhost:9090/api/";
+    private static final String BASE_API = "http://host.docker.internal:9090/api/";
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
