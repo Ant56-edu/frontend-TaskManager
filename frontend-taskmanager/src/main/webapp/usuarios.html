@@ -343,14 +343,6 @@
 
           const result = JSON.parse(responseText);
 
-          showDebug(
-            "debug-list",
-            `
-            Respuesta recibida:<br>
-            ${JSON.stringify(result, null, 2).substring(0, 500)}...
-          `
-          );
-
           // Extraer array de usuarios
           const usuarios = Array.isArray(result)
             ? result
@@ -453,15 +445,6 @@
               ${errorMsg}
             </div>
           `;
-
-          showDebug(
-            "debug-list",
-            `
-            <span style="color: red;">ERROR DETALLADO:<br>
-            ${error.message}<br><br>
-            Stack: ${error.stack ? error.stack.substring(0, 300) : "N/A"}</span>
-          `
-          );
         }
       }
 
