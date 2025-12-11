@@ -328,17 +328,6 @@
           endpoint: "usuarios/listado",
         };
 
-        showDebug(
-          "debug-list",
-          `
-          <strong>TEST DIRECTO:</strong> <a href="http://localhost:9090/api/usuarios/listado" target="_blank">Abrir API directamente</a><br><br>
-          <strong>Petición al Servlet:</strong><br>
-          URL: Servlet (POST)<br>
-          API destino: GET http://localhost:9090/api/usuarios/listado<br>
-          Payload: <pre>${JSON.stringify(payload, null, 2)}</pre>
-        `
-        );
-
         try {
           const response = await fetch("Servlet", {
             method: "POST",
@@ -347,15 +336,6 @@
           });
 
           const responseText = await response.text();
-
-          showDebug(
-            "debug-list",
-            `
-            Response status: ${response.status}<br>
-            Response OK: ${response.ok}<br>
-            Response body: ${responseText.substring(0, 300)}...
-          `
-          );
 
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${responseText}`);
@@ -509,30 +489,12 @@
           body: JSON.stringify(nuevoUsuario),
         };
 
-        showDebug(
-          "debug-create",
-          `
-          <strong>Petición al Servlet:</strong><br>
-          URL: Servlet (POST)<br>
-          API destino: POST http://localhost:9090/api/usuarios/nueva<br>
-          Payload: <pre>${JSON.stringify(payload, null, 2)}</pre>
-        `
-        );
-
         try {
           const response = await fetch("Servlet", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
-
-          showDebug(
-            "debug-create",
-            `
-            Response status: ${response.status}<br>
-            Response OK: ${response.ok}
-          `
-          );
 
           if (!response.ok) {
             const errorText = await response.text();
@@ -554,13 +516,6 @@
         } catch (error) {
           console.error("Error:", error);
           showToast("Error al crear usuario: " + error.message, "error");
-
-          showDebug(
-            "debug-create",
-            `
-            <span style="color: red;">ERROR: ${error.message}</span>
-          `
-          );
         }
       }
 
