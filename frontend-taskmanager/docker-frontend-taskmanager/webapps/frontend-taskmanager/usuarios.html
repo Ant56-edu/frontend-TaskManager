@@ -240,6 +240,9 @@
           Recargar
         </button>
         <div id="listaUsuarios"></div>
+
+        <!-- Debug info -->
+        <div id="debug-list" class="debug-info d-none"></div>
       </div>
     </div>
 
@@ -317,6 +320,14 @@
         closeModal();
       }
 
+      // Función auxiliar para mostrar debug
+      function showDebug(elementId, info) {
+        const debugEl = document.getElementById(elementId);
+        debugEl.classList.remove("d-none");
+        debugEl.innerHTML = `<strong>Debug Info:</strong><br>${info}`;
+        console.log(info);
+      }
+
       // ------------------ LISTAR USUARIOS ------------------
       async function listarUsuarios() {
         const lista = document.getElementById("listaUsuarios");
@@ -325,8 +336,20 @@
         // Payload que espera tu Servlet
         const payload = {
           metodo: "GET",
-          endpoint: "usuarios/listado",
+          endpoint: "usuarios/listado", // ✅ CON 'S' - debe coincidir con @RequestMapping("/api/usuarios")
+          body: null,
         };
+
+        showDebug(
+          "debug-list",
+          `
+          <strong>TEST DIRECTO:</strong> <a href="http://localhost:9090/api/usuarios/listado" target="_blank">Abrir API directamente</a><br><br>
+          <strong>Petición al Servlet:</strong><br>
+          URL: Servlet (POST)<br>
+          API destino: GET http://localhost:9090/api/usuarios/listado<br>
+          Payload: <pre>${JSON.stringify(payload, null, 2)}</pre>
+        `
+        );
 
         try {
           const response = await fetch("Servlet", {
@@ -337,11 +360,28 @@
 
           const responseText = await response.text();
 
+          showDebug(
+            "debug-list",
+            `
+            Response status: ${response.status}<br>
+            Response OK: ${response.ok}<br>
+            Response body: ${responseText.substring(0, 300)}...
+          `
+          );
+
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${responseText}`);
           }
 
           const result = JSON.parse(responseText);
+
+          showDebug(
+            "debug-list",
+            `
+            Respuesta recibida:<br>
+            ${JSON.stringify(result, null, 2).substring(0, 500)}...
+          `
+          );
 
           // Extraer array de usuarios
           const usuarios = Array.isArray(result)
@@ -428,7 +468,7 @@
           } else if (errorMsg.includes("405")) {
             errorMsg =
               "Error 405: El endpoint no acepta el método. Posibles causas:<br>" +
-              "1. La API no está corriendo<br>" +
+              "1. La API en localhost:9090 no está corriendo<br>" +
               "2. El endpoint /api/usuarios/listado no existe<br>" +
               "3. Falta configurar CORS en Spring Boot";
           } else if (errorMsg.includes("404")) {
@@ -445,6 +485,15 @@
               ${errorMsg}
             </div>
           `;
+
+          showDebug(
+            "debug-list",
+            `
+            <span style="color: red;">ERROR DETALLADO:<br>
+            ${error.message}<br><br>
+            Stack: ${error.stack ? error.stack.substring(0, 300) : "N/A"}</span>
+          `
+          );
         }
       }
 
@@ -472,12 +521,30 @@
           body: JSON.stringify(nuevoUsuario),
         };
 
+        showDebug(
+          "debug-create",
+          `
+          <strong>Petición al Servlet:</strong><br>
+          URL: Servlet (POST)<br>
+          API destino: POST http://localhost:9090/api/usuarios/nueva<br>
+          Payload: <pre>${JSON.stringify(payload, null, 2)}</pre>
+        `
+        );
+
         try {
           const response = await fetch("Servlet", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
+
+          showDebug(
+            "debug-create",
+            `
+            Response status: ${response.status}<br>
+            Response OK: ${response.ok}
+          `
+          );
 
           if (!response.ok) {
             const errorText = await response.text();
@@ -499,6 +566,13 @@
         } catch (error) {
           console.error("Error:", error);
           showToast("Error al crear usuario: " + error.message, "error");
+
+          showDebug(
+            "debug-create",
+            `
+            <span style="color: red;">ERROR: ${error.message}</span>
+          `
+          );
         }
       }
 
